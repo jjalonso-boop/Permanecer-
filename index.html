@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Permanecer - Temporizador</title>
+    <title>Permanecer</title>
+    
+    <link rel="icon" type="image/jpeg" href="icono.jpg">
+    <link rel="apple-touch-icon" href="icono.jpg">
+
     <style>
         body {
             margin: 0;
@@ -11,7 +15,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: sans-serif;
             background: linear-gradient(-45deg, #ffdee9, #b5fffc, #fbc2eb, #a6c1ee);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
@@ -24,208 +28,148 @@
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             padding: 2rem;
             border-radius: 30px;
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(10px);
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             width: 85%;
-            max-width: 350px;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        h2 { font-weight: 300; color: #555; margin-top: 0; }
+        h2 { font-weight: 300; color: #555; margin-bottom: 20px; }
 
-        /* Contenedor de las ruedas */
+        /* Ruedas de tiempo */
         .picker-container {
             display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 180px; /* Un poco más alto para ver mejor */
-            margin: 20px 0;
+            justify-content: center;
+            height: 180px;
+            margin-bottom: 30px;
             position: relative;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 20px;
+            overflow: hidden;
         }
 
-        .picker-column {
+        .selection-box {
+            position: absolute;
+            top: 60px;
+            height: 60px;
+            width: 90%;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+
+        .picker-col {
             flex: 1;
-            height: 100%;
-            overflow-y: auto;
+            overflow-y: scroll;
             scroll-snap-type: y mandatory;
-            -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        .picker-col::-webkit-scrollbar { display: none; }
 
-        .picker-column::-webkit-scrollbar { display: none; }
-
-        .picker-item {
-            height: 60px; /* Altura fija para el cálculo */
+        .item {
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            color: #444;
+            font-size: 1.6rem;
+            color: #333;
             scroll-snap-align: center;
         }
 
-        /* Líneas de selección central */
-        .selection-overlay {
-            position: absolute;
-            top: 60px;
-            left: 0;
-            right: 0;
-            height: 60px;
-            border-top: 2px solid rgba(0,0,0,0.1);
-            border-bottom: 2px solid rgba(0,0,0,0.1);
-            pointer-events: none;
-            background: rgba(255, 255, 255, 0.3);
-        }
+        .label { font-size: 0.6rem; color: #999; text-transform: uppercase; }
 
-        #display {
-            font-size: 4rem;
-            font-weight: 300;
-            color: #444;
-            margin: 2rem 0;
-            display: none;
-        }
+        #display { font-size: 3.5rem; color: #444; display: none; margin: 40px 0; }
 
         button {
-            padding: 15px 40px;
-            font-size: 1rem;
-            border: none;
+            width: 100%;
+            padding: 15px;
             border-radius: 50px;
-            background-color: #555;
+            border: none;
+            background: #555;
             color: white;
-            letter-spacing: 2px;
-            cursor: pointer;
-            width: 100%;
+            font-size: 1rem;
+            letter-spacing: 1px;
         }
-
-        .unit-label {
-            font-size: 0.7rem;
-            color: #999;
-            position: absolute;
-            bottom: 5px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .col-wrapper { position: relative; flex: 1; height: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>Permanecer</h2>
-        
-        <div id="display">00:00:00</div>
+<div class="container">
+    <h2>Permanecer</h2>
+    
+    <div id="display">00:00:00</div>
 
-        <div id="picker" class="picker-container">
-            <div class="selection-overlay"></div>
-            
-            <div class="col-wrapper">
-                <div class="picker-column" id="col-h"></div>
-                <div class="unit-label">horas</div>
-            </div>
-            <div class="col-wrapper">
-                <div class="picker-column" id="col-m"></div>
-                <div class="unit-label">min</div>
-            </div>
-            <div class="col-wrapper">
-                <div class="picker-column" id="col-s"></div>
-                <div class="unit-label">seg</div>
-            </div>
-        </div>
-
-        <button id="btnAction" onclick="toggleTimer()">INICIAR</button>
+    <div id="picker" class="picker-container">
+        <div class="selection-box"></div>
+        <div class="picker-col" id="h"></div>
+        <div class="picker-col" id="m"></div>
+        <div class="picker-col" id="s"></div>
     </div>
 
-    <audio id="bowlSound" src="tibetan-bowl.mp3"></audio>
+    <button id="btn" onclick="start()">INICIAR</button>
+</div>
 
-    <script>
-        // Función para llenar las columnas con números
-        function fillColumn(id, max) {
-            const col = document.getElementById(id);
-            // Espacio vacío inicial
-            col.innerHTML = '<div class="picker-item"></div>';
-            for (let i = 0; i <= max; i++) {
-                const item = document.createElement('div');
-                item.className = 'picker-item';
-                item.innerText = i.toString().padStart(2, '0');
-                col.appendChild(item);
-            }
-            // Espacio vacío final
-            col.innerHTML += '<div class="picker-item"></div>';
+<audio id="snd" src="tibetan-bowl.mp3"></audio>
+
+<script>
+    function fill(id, max, label) {
+        const el = document.getElementById(id);
+        el.innerHTML = '<div class="item"></div>';
+        for(let i=0; i<=max; i++) {
+            el.innerHTML += `<div class="item">${i.toString().padStart(2,'0')}</div>`;
+        }
+        el.innerHTML += '<div class="item"><span class="label">${label}</span></div>';
+    }
+    fill('h', 23, 'hs'); fill('m', 59, 'min'); fill('s', 59, 'seg');
+
+    let timer;
+    let secondsLeft;
+
+    function start() {
+        const btn = document.getElementById('btn');
+        if (btn.innerText === "DETENER") {
+            clearInterval(timer);
+            resetUI();
+            return;
         }
 
-        fillColumn('col-h', 23);
-        fillColumn('col-m', 59);
-        fillColumn('col-s', 59);
+        const h = Math.round(document.getElementById('h').scrollTop / 60);
+        const m = Math.round(document.getElementById('m').scrollTop / 60);
+        const s = Math.round(document.getElementById('s').scrollTop / 60);
+        secondsLeft = (h * 3600) + (m * 60) + s;
 
-        let interval;
-        let timeLeft;
-        let isRunning = false;
+        if (secondsLeft <= 0) return;
 
-        function getVal(id) {
-            const col = document.getElementById(id);
-            // Calculamos el número basado en cuánto hemos bajado el scroll
-            const index = Math.round(col.scrollTop / 60);
-            return index;
-        }
+        document.getElementById('picker').style.display = 'none';
+        document.getElementById('display').style.display = 'block';
+        btn.innerText = "DETENER";
 
-        function toggleTimer() {
-            const btn = document.getElementById('btnAction');
-            const display = document.getElementById('display');
-            const picker = document.getElementById('picker');
-            const sound = document.getElementById('bowlSound');
-
-            if (!isRunning) {
-                const h = getVal('col-h');
-                const m = getVal('col-m');
-                const s = getVal('col-s');
-                timeLeft = (h * 3600) + (m * 60) + s;
-
-                if (timeLeft <= 0) {
-                    alert("Por favor, selecciona un tiempo");
-                    return;
-                }
-
-                isRunning = true;
-                btn.innerText = "DETENER";
-                picker.style.display = "none";
-                display.style.display = "block";
-                updateDisplay();
-
-                interval = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    if (timeLeft <= 0) {
-                        clearInterval(interval);
-                        sound.play();
-                        resetUI();
-                    }
-                }, 1000);
-            } else {
-                clearInterval(interval);
+        timer = setInterval(() => {
+            secondsLeft--;
+            const hh = Math.floor(secondsLeft / 3600);
+            const mm = Math.floor((secondsLeft % 3600) / 60);
+            const ss = secondsLeft % 60;
+            document.getElementById('display').innerText = 
+                `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
+            
+            if (secondsLeft <= 0) {
+                clearInterval(timer);
+                document.getElementById('snd').play();
                 resetUI();
             }
-        }
+        }, 1000);
+    }
 
-        function updateDisplay() {
-            const h = Math.floor(timeLeft / 3600);
-            const m = Math.floor((timeLeft % 3600) / 60);
-            const s = timeLeft % 60;
-            document.getElementById('display').innerText = 
-                `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
+    function resetUI() {
+        document.getElementById('btn').innerText = "INICIAR";
+        document.getElementById('picker').style.display = 'flex';
+        document.getElementById('display').style.display = 'none';
+    }
+</script>
 
-        function resetUI() {
-            isRunning = false;
-            document.getElementById('btnAction').innerText = "INICIAR";
-            document.getElementById('picker').style.display = "flex";
-            document.getElementById('display').style.display = "none";
-        }
-    </script>
 </body>
 </html>

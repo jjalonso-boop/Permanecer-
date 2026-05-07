@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Permanecer</title>
     
-    <link rel="manifest" href="manifest.json?v=99">
+    <link rel="manifest" href="manifest.json?v=201">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#b5fffc">
 
-    <link rel="icon" type="image/jpeg" href="icono.jpg?v=99">
-    <link rel="apple-touch-icon" href="icono.jpg?v=99">
+    <link rel="icon" type="image/jpeg" href="icono.jpg">
+    <link rel="apple-touch-icon" href="icono.jpg">
     
     <style>
         body { 
@@ -47,7 +47,7 @@
         <div id="m" class="picker-col"></div>
         <div id="s" class="picker-col"></div>
     </div>
-    <button id="btn" onclick="start()">INICIAR</button>
+    <button id="btn" onclick="handleButtonClick()">INICIAR</button>
 </div>
 
 <audio id="snd" src="tibetan-bowl.mp3" preload="auto"></audio>
@@ -71,13 +71,25 @@
 
     window.onload = () => { fill('h', 23); fill('m', 59); fill('s', 59); };
 
-    let t, timeLeft, count = 0;
+    let timerId, timeLeft, count = 0;
+    let isInitialGong = true; // Variable para saber si es el gong del principio
     const sound = document.getElementById('snd');
 
     sound.onended = () => { 
-        count++; 
-        if(count < 3) { sound.currentTime = 0; sound.play(); } 
-        else { reset(); }
+        if (isInitialGong) {
+            // Termina el gong inicial, empezamos la cuenta atrás
+            isInitialGong = false;
+            startCountdown();
+        } else {
+            // Estamos en los gongs finales
+            count++; 
+            if(count < 3) { 
+                sound.currentTime = 0; 
+                sound.play(); 
+            } else { 
+                reset(); 
+            }
+        }
     };
 
     function updateDisplay() {
@@ -85,9 +97,14 @@
         document.getElementById('display').innerText = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
     }
 
-    function start() {
+    function handleButtonClick() {
         const btn = document.getElementById('btn');
-        if(btn.innerText === "DETENER") { clearInterval(t); sound.pause(); reset(); return; }
+        if(btn.innerText === "DETENER") { 
+            clearInterval(timerId); 
+            sound.pause(); 
+            reset(); 
+            return; 
+        }
         
         const h = Math.round(document.getElementById('h').scrollTop / 60);
         const m = Math.round(document.getElementById('m').scrollTop / 60);
@@ -95,18 +112,28 @@
         timeLeft = (h * 3600) + (m * 60) + s;
 
         if(timeLeft <= 0) return;
-        
-        sound.play().then(() => { sound.pause(); sound.currentTime = 0; });
 
-        updateDisplay();
+        // Preparativos visuales
         document.getElementById('picker').style.display = 'none';
         document.getElementById('display').style.display = 'block';
-        btn.innerText = "DETENER"; count = 0;
+        btn.innerText = "DETENER";
+        updateDisplay();
 
-        t = setInterval(() => {
+        // 1. Tocar el primer gong de 13 segundos
+        isInitialGong = true;
+        count = 0;
+        sound.play();
+    }
+
+    function startCountdown() {
+        timerId = setInterval(() => {
             timeLeft--;
             updateDisplay();
-            if(timeLeft <= 0) { clearInterval(t); sound.play(); }
+            if(timeLeft <= 0) { 
+                clearInterval(timerId); 
+                // Al terminar el tiempo, suenan los 3 gongs finales
+                sound.play(); 
+            }
         }, 1000);
     }
 
@@ -114,6 +141,7 @@
         document.getElementById('btn').innerText = "INICIAR";
         document.getElementById('picker').style.display = 'flex';
         document.getElementById('display').style.display = 'none';
+        isInitialGong = true;
     }
 </script>
 </body>

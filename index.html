@@ -10,9 +10,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#b5fffc">
 
-    <link rel="icon" href="icono.jpg">
+    <link rel="icon" type="image/jpeg" href="icono.jpg">
     <link rel="apple-touch-icon" href="icono.jpg">
-    
+    <link rel="shortcut icon" href="icono.jpg">
+
     <style>
         body { 
             margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; 
@@ -22,74 +23,31 @@
             overflow: hidden;
         }
         @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
-
         .container { text-align: center; width: 100%; max-width: 300px; }
-
-        h2 { 
-            font-weight: 200; color: #444; letter-spacing: 2px; margin-bottom: 20px;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.5);
-        }
-
-        .picker-container { 
-            display: flex; justify-content: center; height: 180px; margin: 20px 0; 
-            position: relative; overflow: hidden;
-        }
-
-        .selection-box { 
-            position: absolute; top: 60px; height: 60px; width: 100%; 
-            border-top: 1px solid rgba(0,0,0,0.1); border-bottom: 1px solid rgba(0,0,0,0.1); 
-            pointer-events: none; 
-        }
-
-        .picker-col { 
-            flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory; 
-            scrollbar-width: none; -ms-overflow-style: none;
-        }
+        h2 { font-weight: 200; color: #444; letter-spacing: 2px; margin-bottom: 20px; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
+        .picker-container { display: flex; justify-content: center; height: 180px; margin: 20px 0; position: relative; overflow: hidden; }
+        .selection-box { position: absolute; top: 60px; height: 60px; width: 100%; border-top: 1px solid rgba(0,0,0,0.1); border-bottom: 1px solid rgba(0,0,0,0.1); pointer-events: none; }
+        .picker-col { flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -ms-overflow-style: none; }
         .picker-col::-webkit-scrollbar { display: none; }
-
-        .item { 
-            height: 60px; display: flex; align-items: center; justify-content: center; 
-            font-size: 1.5rem; color: rgba(0,0,0,0.25); scroll-snap-align: center;
-        }
-
-        /* Color más oscuro para que se vea bien */
-        .item.selected { 
-            color: #222; font-weight: 400; font-size: 2.2rem; 
-        }
-
-        #display { 
-            font-size: 4.5rem; display: none; margin: 40px 0; 
-            font-weight: 100; color: #222;
-        }
-
-        button { 
-            width: 70%; padding: 18px; border-radius: 50px; border: none; 
-            background: rgba(255, 255, 255, 0.5); color: #333; 
-            font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;
-            backdrop-filter: blur(10px); cursor: pointer;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
-            margin-top: 20px;
-        }
+        .item { height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: rgba(0,0,0,0.25); scroll-snap-align: center; }
+        .item.selected { color: #222; font-weight: 400; font-size: 2.2rem; }
+        #display { font-size: 4.5rem; display: none; margin: 40px 0; font-weight: 100; color: #222; }
+        button { width: 70%; padding: 18px; border-radius: 50px; border: none; background: rgba(255, 255, 255, 0.5); color: #333; font-size: 0.9rem; font-weight: 500; letter-spacing: 1px; backdrop-filter: blur(10px); cursor: pointer; box-shadow: 0 8px 15px rgba(0,0,0,0.05); margin-top: 20px; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <h2>PERMANECER</h2>
     <div id="display">00:00:00</div>
-
     <div id="picker" class="picker-container">
         <div class="selection-box"></div>
         <div id="h" class="picker-col"></div>
         <div id="m" class="picker-col"></div>
         <div id="s" class="picker-col"></div>
     </div>
-
     <button id="btn" onclick="start()">INICIAR</button>
 </div>
-
 <audio id="snd" src="tibetan-bowl.mp3"></audio>
-
 <script>
     function fill(id, max) {
         const el = document.getElementById(id);
@@ -106,23 +64,37 @@
         };
         setTimeout(() => el.scrollTo(0,0), 150);
     }
-
     window.onload = () => { fill('h', 23); fill('m', 59); fill('s', 59); };
-
     let t, timeLeft, count = 0;
     const sound = document.getElementById('snd');
-    const display = document.getElementById('display');
-    const picker = document.getElementById('picker');
-
     sound.onended = () => { count++; if(count < 3) sound.play(); else reset(); };
-
     function updateDisplay() {
         let hh = Math.floor(timeLeft/3600), mm = Math.floor((timeLeft%3600)/60), ss = timeLeft%60;
-        display.innerText = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
+        document.getElementById('display').innerText = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
     }
-
     function start() {
         const btn = document.getElementById('btn');
         if(btn.innerText === "DETENER") { clearInterval(t); sound.pause(); reset(); return; }
         const h = Math.round(document.getElementById('h').scrollTop / 60);
-        const m = Math.round(document.getElementById
+        const m = Math.round(document.getElementById('m').scrollTop / 60);
+        const s = Math.round(document.getElementById('s').scrollTop / 60);
+        timeLeft = (h * 3600) + (m * 60) + s;
+        if(timeLeft <= 0) return;
+        updateDisplay();
+        document.getElementById('picker').style.display = 'none';
+        document.getElementById('display').style.display = 'block';
+        btn.innerText = "DETENER"; count = 0;
+        t = setInterval(() => {
+            timeLeft--;
+            updateDisplay();
+            if(timeLeft <= 0) { clearInterval(t); sound.play(); }
+        }, 1000);
+    }
+    function reset() {
+        document.getElementById('btn').innerText = "INICIAR";
+        document.getElementById('picker').style.display = 'flex';
+        document.getElementById('display').style.display = 'none';
+    }
+</script>
+</body>
+</html>

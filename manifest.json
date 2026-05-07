@@ -3,7 +3,7 @@
   "name": "Permanecer",
   "icons": [
     {
-      "src": "icono.jpg",
+      "src": "icono.jpg?v=1",
       "sizes": "192x192 512x512",
       "type": "image/jpeg"
     }
@@ -13,4 +13,3 @@
   "background_color": "#b5fffc",
   "theme_color": "#b5fffc"
 }
-

@@ -1,1 +1,16 @@
+{
+  "short_name": "Permanecer",
+  "name": "Permanecer",
+  "icons": [
+    {
+      "src": "icono.jpg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg"
+    }
+  ],
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#b5fffc",
+  "theme_color": "#b5fffc"
+}
 

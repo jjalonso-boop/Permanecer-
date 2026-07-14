@@ -15,6 +15,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            /* Nueva paleta más variada y moderna (Aurora Style) */
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #ffbe0b, #fb5607);
             background-size: 400% 400%;
             animation: gradienteFluido 12s ease infinite;
@@ -24,7 +25,6 @@
             overflow: hidden;
             cursor: pointer;
             user-select: none;
-            -webkit-user-select: none; /* Para iOS */
         }
 
         @keyframes gradienteFluido {
@@ -33,6 +33,7 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* El contenedor ahora es invisible (sin fondo ni bordes) */
         #contenedor {
             max-width: 800px; 
             width: 90%;
@@ -41,7 +42,9 @@
         }
 
         #frase {
+            /* Fuente más grande para que destaque sobre el fondo */
             font-size: 2.2rem;
+            /* Color blanco con una ligera sombra para asegurar legibilidad */
             color: white;
             line-height: 1.4;
             margin: 0;
@@ -60,6 +63,7 @@
             text-transform: uppercase;
         }
 
+        /* Ajuste para pantallas pequeñas (móviles) */
         @media (max-width: 600px) {
             #frase {
                 font-size: 1.8rem;
@@ -88,9 +92,8 @@
             const elemento = document.getElementById("frase"); 
             const contenedor = document.getElementById("contenedor");
 
-            // Si por ahorro de energía el script frases.js no cargó a tiempo, reintentamos
             if (typeof frases === 'undefined') { 
-                setTimeout(nuevaFrase, 200);
+                setTimeout(nuevaFrase, 100);
                 return; 
             } 
 
@@ -108,28 +111,12 @@
             } 
         } 
 
-        // 1. Carga inicial
         window.onload = nuevaFrase;
-
-        // 2. Transición al tocar pantalla
         document.body.addEventListener('click', nuevaFrase);
 
-        // 3. Solución para "despertar" del ahorro de batería / bloqueo de pantalla
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                // Al volver a estar visible la app, desbloqueamos posibles estados colgados y refrescamos
-                cargando = false; 
-                nuevaFrase();
-            }
-        });
-
-        // 4. Resguardo extra para iOS / Safari al volver atrás en el historial
         window.onpageshow = function(event) {
-            cargando = false;
-            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            if (event.persisted) {
                 window.location.reload();
-            } else {
-                nuevaFrase();
             }
         };
     </script> 
